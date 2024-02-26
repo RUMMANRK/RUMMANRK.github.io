@@ -66,39 +66,39 @@
                             const canvas = document.getElementById('canvas');
                             const ctx = canvas.getContext('2d');
             
-                            // Set the canvas width to the wider of the masthead or the image
-                            canvas.width = Math.max(img.width, masthead.width + 550);
+                            // Calculate the width and height for the canvas
+                            let canvasWidth = Math.max(img.width, masthead.width + 550);
+                            let imageAspectRatio = img.width / img.height;
+                            let canvasHeight = masthead.height + (canvasWidth / imageAspectRatio);
             
-                            // Maintain the uploaded image's aspect ratio
-                            const imageAspectRatio = img.width / img.height;
-                            const imageHeight = canvas.width / imageAspectRatio;
-                            
-                            // Adjust the canvas height to fit both the masthead and the image
-                            canvas.height = masthead.height + imageHeight;
+                            canvas.width = canvasWidth;
+                            canvas.height = canvasHeight;
             
-                            // Draw the masthead at its original size, aligned to the top left
-                            ctx.drawImage(masthead, 0, 0);
+                            // Fill the masthead background with white
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvasWidth, masthead.height);
             
-                            // Calculate font size as 8% of the canvas height
-                            const fontSize = canvas.height * 0.03;
+                            // Draw the masthead image
+                            ctx.drawImage(masthead, 0, 0, masthead.width, masthead.height);
+            
+                            // Calculate and adjust the font size to 8% of the canvas height
+                            const fontSize = canvasHeight * 0.035;
                             ctx.font = `${fontSize}px Arial`;
                             ctx.fillStyle = 'black'; // Text color
-                            // Adjust the text overlay position
-                            const textX = 260; // X position of the text
-                            const textY = 150 + fontSize; // Y position of the text, adjusted for font size
                             const text = "By " + document.getElementById('inputText').value;
-                            ctx.fillText(text, textX, textY);
+                            ctx.fillText(text, 260, 150 + fontSize, masthead.width - 260); // Adjusted text positioning
             
-                            // Draw the image, maintaining its aspect ratio
-                            const imageY = masthead.height; // Position the image directly below the masthead
-                            ctx.drawImage(img, 0, imageY, canvas.width, imageHeight);
+                            // Draw the uploaded image, maintaining its aspect ratio
+                            const contentY = masthead.height; // Starting Y position right below the masthead
+                            const scaledHeight = img.height * (canvasWidth / img.width); // Scaled height to maintain aspect ratio
+                            ctx.drawImage(img, 0, contentY, canvasWidth, scaledHeight);
             
                             // Prepare the image for download
                             document.getElementById('downloadLink').href = canvas.toDataURL('image/png');
                             document.getElementById('downloadLink').download = 'combined-image.png';
                             document.getElementById('downloadLink').style.display = 'block';
                         };
-                        masthead.src = 'frames/masthead1.jpg'; // Ensure this path is correct
+                        masthead.src = 'frames/masthead1.jpg';
                     };
                     img.src = event.target.result;
                 };
@@ -109,6 +109,8 @@
                 this.style.display = 'none';
             });
             </script>
+            
+            
             
 </body>
 </html>
