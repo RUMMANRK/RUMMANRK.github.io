@@ -22,6 +22,13 @@
                 margin: 0 auto;
 
             }
+            .bg-red {
+                background-color: red !important;
+            }
+            
+            .bg-green {
+                background-color: green !important;
+            }
     
             /* Hover State */
             .btn:hover {
@@ -40,70 +47,104 @@
                 box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
             }
             .form-container {
-                display: flex;
-                flex-direction: row;
+                flex-flow: row wrap;
                 margin-bottom: 2rem;
             }
+
+            .form-top {
+                padding-top: 1rem;
+            }
+
+        
         </style>
     </head>
 <body>
     <form class="form-container">
+        
         <input type="file" id="uploadImage" accept="image/*">
         <input type="text" id="inputText" class="text-input" placeholder="Enter text for masthead">
+        <div class="form-top">
+        <button type="button" id="createImage" class="btn bg-green">Create</button>
+        <button type="button" id="resetCanvas" class="btn bg-red">Reset</button>
         <a id="downloadLink" class="btn" style="display:none;">Download</a>
+        </div>
         </form>
         
         <canvas id="canvas" style="border:1px solid #000;"></canvas>
         
         <script>
-            document.getElementById('uploadImage').addEventListener('change', function(e) {
+            document.getElementById('createImage').addEventListener('click', function() {
+            const imgInput = document.getElementById('uploadImage');
+            if (imgInput.files && imgInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const img = new Image();
                     img.onload = function() {
-                        const masthead = new Image();
-                        masthead.onload = function() {
-                            const canvas = document.getElementById('canvas');
-                            const ctx = canvas.getContext('2d');
-            
-                            // Calculate the width and height for the canvas
-                            let canvasWidth = Math.max(img.width, masthead.width + 550);
-                            let imageAspectRatio = img.width / img.height;
-                            let canvasHeight = masthead.height + (canvasWidth / imageAspectRatio);
-            
-                            canvas.width = canvasWidth;
-                            canvas.height = canvasHeight;
-            
-                            // Fill the masthead background with white
-                            ctx.fillStyle = 'white';
-                            ctx.fillRect(0, 0, canvasWidth, masthead.height);
-            
-                            // Draw the masthead image
-                            ctx.drawImage(masthead, 0, 0, masthead.width, masthead.height);
-            
-                            // Calculate and adjust the font size to 8% of the canvas height
-                            const fontSize = canvasHeight * 0.035;
-                            ctx.font = `${fontSize}px Arial`;
-                            ctx.fillStyle = 'black'; // Text color
-                            const text = "By " + document.getElementById('inputText').value;
-                            ctx.fillText(text, 260, 150 + fontSize, masthead.width - 260); // Adjusted text positioning
-            
-                            // Draw the uploaded image, maintaining its aspect ratio
-                            const contentY = masthead.height; // Starting Y position right below the masthead
-                            const scaledHeight = img.height * (canvasWidth / img.width); // Scaled height to maintain aspect ratio
-                            ctx.drawImage(img, 0, contentY, canvasWidth, scaledHeight);
-            
-                            // Prepare the image for download
-                            document.getElementById('downloadLink').href = canvas.toDataURL('image/png');
-                            document.getElementById('downloadLink').download = 'combined-image.png';
-                            document.getElementById('downloadLink').style.display = 'block';
-                        };
-                        masthead.src = 'frames/masthead1.jpg';
+                        // Place image creation logic here, utilizing `img`
+                        createImageOnCanvas(img);
                     };
                     img.src = event.target.result;
                 };
-                reader.readAsDataURL(e.target.files[0]);
+                reader.readAsDataURL(imgInput.files[0]);
+             } else {
+                alert("Please select an image first.");
+               }
             });
+
+            document.getElementById('resetCanvas').addEventListener('click', function() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.width = 0;
+            canvas.height = 0;
+            document.getElementById('inputText').value = '';
+            document.getElementById('uploadImage').value = ''; // Reset file input
+            document.getElementById('downloadLink').style.display = 'none';
+                });
+
+
+
+                function createImageOnCanvas(img) {
+                    const masthead = new Image();
+                    masthead.onload = function() {
+                        const canvas = document.getElementById('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Calculate the width and height for the canvas
+                        let canvasWidth = Math.max(img.width, masthead.width + 550);
+                        let imageAspectRatio = img.width / img.height;
+                        let canvasHeight = masthead.height + (canvasWidth / imageAspectRatio);
+
+                        canvas.width = canvasWidth;
+                        canvas.height = canvasHeight;
+
+                        // Fill the masthead background with white
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvasWidth, masthead.height);
+
+                        // Draw the masthead image
+                        ctx.drawImage(masthead, 0, 0, masthead.width, masthead.height);
+
+                        // Calculate and adjust the font size to 8% of the canvas height
+                        const fontSize = canvasHeight * 0.037; // Adjusted to 8% as specified
+                        ctx.font = `${fontSize}px Arial`;
+                        ctx.fillStyle = 'black'; // Text color
+                        const text = "By " + document.getElementById('inputText').value;
+                        ctx.fillText(text, 260, 150 + fontSize, masthead.width - 260); // Adjusted text positioning
+
+                        // Draw the uploaded image, maintaining its aspect ratio
+                        const contentY = masthead.height; // Starting Y position right below the masthead
+                        const scaledHeight = img.height * (canvasWidth / img.width); // Scaled height to maintain aspect ratio
+                        ctx.drawImage(img, 0, contentY, canvasWidth, scaledHeight);
+
+                        // Prepare the image for download
+                        document.getElementById('downloadLink').href = canvas.toDataURL('image/png');
+                        document.getElementById('downloadLink').download = 'combined-image.png';
+                        document.getElementById('downloadLink').style.display = 'block';
+                    };
+                    masthead.src = 'frames/masthead1.jpg'; // Ensure this path is correct
+                }
+
             
             document.getElementById('downloadLink').addEventListener('click', function() {
                 this.style.display = 'none';
