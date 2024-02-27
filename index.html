@@ -62,7 +62,8 @@
     <form class="form-container">
         
         <input type="file" id="uploadImage" accept="image/*">
-        <input type="text" id="inputText" class="text-input" placeholder="Enter text for masthead">
+        <input type="text" id="inputText" class="text-input" placeholder="Meme Creator">
+        <input type="number" id="inputFontSize" class="text-input" placeholder="Select font size in pixels">
         <div class="form-top">
         <button type="button" id="createImage" class="btn bg-green">Create</button>
         <button type="button" id="resetCanvas" class="btn bg-red">Reset</button>
@@ -124,9 +125,17 @@
 
                         // Draw the masthead image
                         ctx.drawImage(masthead, 0, 0, masthead.width, masthead.height);
+                        
+                        // Get the user's font size specs or set to default
+                        let userFontSize = document.getElementById('inputFontSize').value;
+                        // Calculate default font size as 4% of canvasHeight
+                        const defaultFontSize = canvasHeight * 0.04;
+
 
                         // Calculate and adjust the font size to 8% of the canvas height
-                        const fontSize = canvasHeight * 0.037; // Adjusted to 8% as specified
+                        
+                        // Use user-specified font size if it's provided and valid, otherwise use default
+                        const fontSize = userFontSize ? parseInt(userFontSize, 10) : defaultFontSize;
                         ctx.font = `${fontSize}px Arial`;
                         ctx.fillStyle = 'black'; // Text color
                         const text = "By " + document.getElementById('inputText').value;
