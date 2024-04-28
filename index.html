@@ -71,94 +71,83 @@
         </div>
         </form>
         
-        <canvas id="canvas" style="border:1px solid #000;"></canvas>
+        <canvas id="canvas" style="border:1px solid #000; max-width: 400px;"></canvas>
         
         <script>
             document.getElementById('createImage').addEventListener('click', function() {
-            const imgInput = document.getElementById('uploadImage');
-            if (imgInput.files && imgInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        // Place image creation logic here, utilizing `img`
-                        createImageOnCanvas(img);
+                const imgInput = document.getElementById('uploadImage');
+                if (imgInput.files && imgInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = new Image();
+                        img.onload = function() {
+                            createImageOnCanvas(img);
+                        };
+                        img.src = event.target.result;
                     };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(imgInput.files[0]);
-             } else {
-                alert("Please select an image first.");
-               }
-            });
-
-            document.getElementById('resetCanvas').addEventListener('click', function() {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            canvas.width = 0;
-            canvas.height = 0;
-            document.getElementById('inputText').value = '';
-            document.getElementById('uploadImage').value = ''; // Reset file input
-            document.getElementById('downloadLink').style.display = 'none';
-                });
-
-
-
-                function createImageOnCanvas(img) {
-                    const masthead = new Image();
-                    masthead.onload = function() {
-                        const canvas = document.getElementById('canvas');
-                        const ctx = canvas.getContext('2d');
-
-                        // Calculate the width and height for the canvas
-                        let canvasWidth = Math.max(img.width, masthead.width + 550);
-                        let imageAspectRatio = img.width / img.height;
-                        let canvasHeight = masthead.height + (canvasWidth / imageAspectRatio);
-
-                        canvas.width = canvasWidth;
-                        canvas.height = canvasHeight;
-
-                        // Fill the masthead background with white
-                        ctx.fillStyle = 'white';
-                        ctx.fillRect(0, 0, canvasWidth, masthead.height);
-
-                        // Draw the masthead image
-                        ctx.drawImage(masthead, 0, 0, masthead.width, masthead.height);
-                        
-                        // Get the user's font size specs or set to default
-                        let userFontSize = document.getElementById('inputFontSize').value;
-                        // Calculate default font size as 4% of canvasHeight
-                        const defaultFontSize = canvasHeight * 0.04;
-
-
-                        // Calculate and adjust the font size to 8% of the canvas height
-                        
-                        // Use user-specified font size if it's provided and valid, otherwise use default
-                        const fontSize = userFontSize ? parseInt(userFontSize, 10) : defaultFontSize;
-                        ctx.font = `${fontSize}px Arial`;
-                        ctx.fillStyle = 'black'; // Text color
-                        const text = "By " + document.getElementById('inputText').value;
-                        ctx.fillText(text, 260, 150 + fontSize, masthead.width - 260); // Adjusted text positioning
-
-                        // Draw the uploaded image, maintaining its aspect ratio
-                        const contentY = masthead.height; // Starting Y position right below the masthead
-                        const scaledHeight = img.height * (canvasWidth / img.width); // Scaled height to maintain aspect ratio
-                        ctx.drawImage(img, 0, contentY, canvasWidth, scaledHeight);
-
-                        // Prepare the image for download
-                        document.getElementById('downloadLink').href = canvas.toDataURL('image/png');
-                        document.getElementById('downloadLink').download = 'combined-image.png';
-                        document.getElementById('downloadLink').style.display = 'block';
-                    };
-                    masthead.src = 'frames/masthead1.jpg'; // Ensure this path is correct
+                    reader.readAsDataURL(imgInput.files[0]);
+                } else {
+                    alert("Please select an image first.");
                 }
+            });
+            
+            document.getElementById('resetCanvas').addEventListener('click', function() {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                document.getElementById('inputText').value = '';
+                document.getElementById('uploadImage').value = '';
+                document.getElementById('downloadLink').style.display = 'none';
+            });
+            
+            function createImageOnCanvas(img) {
+                const masthead = new Image();
+                masthead.onload = function() {
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+            
+                    // Calculate the width and height for the canvas
+                    let canvasWidth = Math.max(img.width, masthead.width + 550);
+                    let imageAspectRatio = img.width / img.height;
+                    let canvasHeight = masthead.height + (canvasWidth / imageAspectRatio);
 
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+                    
+                    // Draw a white background layer
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvasWidth, canvasHeight); // Fills the entire canvas with white
+
+                    // Draw the masthead image
+                    ctx.drawImage(masthead, 0, 0, masthead.width, masthead.height);
+            
+                    // Set and draw text on the masthead
+                    let fontSize = parseInt(document.getElementById('inputFontSize').value, 10) || 60; // Default to 4% of canvasHeight if not specified
+                    ctx.font = `${fontSize}px Arial`;
+                    ctx.fillStyle = 'black';
+                    const text = "By " + (document.getElementById('inputText').value || "Author Name");
+                    ctx.fillText(text, 260, 150 + fontSize, masthead.width - 260);
+            
+                    // Draw the uploaded image below the masthead, maintaining its aspect ratio
+                    const contentY = masthead.height;
+                    const scaledHeight = img.height * (canvasWidth / img.width);
+                    ctx.drawImage(img, 0, contentY, canvasWidth, scaledHeight);
+            
+                    // Prepare the image for download
+                    document.getElementById('downloadLink').href = canvas.toDataURL('image/png');
+                    document.getElementById('downloadLink').download = 'combined-image.png';
+                    document.getElementById('downloadLink').style.display = 'block';
+                };
+                masthead.src = 'frames/masthead1.jpg'; // Ensure this path is correct
+            }
             
             document.getElementById('downloadLink').addEventListener('click', function() {
                 this.style.display = 'none';
             });
             </script>
+            
+        
+        
             
             
             
