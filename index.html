@@ -99,6 +99,29 @@
                 document.getElementById('uploadImage').value = '';
                 document.getElementById('downloadLink').style.display = 'none';
             });
+
+            window.addEventListener('paste', function(e) {
+            // Check if the clipboard has image data
+            if (e.clipboardData && e.clipboardData.items) {
+                for (let i = 0; i < e.clipboardData.items.length; i++) {
+                    if (e.clipboardData.items[i].type.indexOf('image') !== -1) {
+                        // Found an image in the paste data
+                        const blob = e.clipboardData.items[i].getAsFile();
+
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const img = new Image();
+                            img.onload = function() {
+                                createImageOnCanvas(img);
+                            };
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(blob);
+                        break;
+                    }
+                }
+            }
+        });
             
             function createImageOnCanvas(img) {
                 const masthead = new Image();
